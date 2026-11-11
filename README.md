@@ -41,6 +41,8 @@ reports ─► group by question ─► ① deterministic lint   (option count, 
 
 Queue grouped by question; order = *damage if wrong* (answer key ≫ missing data ≫ cosmetic) × distinct students × needs-a-human. Per case: the change first (rendered before/after with MathML, raw HTML toggle, answer-key chips with option text), then why (evidence, independent re-solve, guard notes), then the reports, then the editable student reply. Approve / Edit / Reject with an audit entry for each (Export JSON). Keyboard: J/K, A, E, R, U. Light/dark, works at phone width. **Unreported** tab lists defects nobody reported.
 
+Live console: https://devdaveddev.github.io/acadza-report-fix/ (GitHub Pages, served from the `gh-pages` branch; precomputed data, no LLM calls).
+
 Deploy: any static host. `vercel --prod` or Netlify drag-drop of `public/` (config files included).
 
 ## Honesty notes
