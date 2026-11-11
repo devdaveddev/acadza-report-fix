@@ -4,8 +4,7 @@ Turns a student's "ans galat hai" into a **safe, reviewable fix**: a triage engi
 
 - `results.json`: output for all 44 reports (`npm run triage`)
 - `public/`: the faculty console, a static site (no build step)
-- `PROMPTS.md`, `PRODUCT.md`: the written deliverables
-- Assignment brief: [docs-assignment-brief.md](docs-assignment-brief.md)
+- `PRODUCT.md`: the product-thinking write-up
 
 ```
 npm run triage     # regenerate results.json + public/data.json (offline/curated mode, no API key needed)
