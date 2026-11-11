@@ -1,5 +1,14 @@
 import { applyEdit } from './util.mjs';
 import { verify } from './verifiers.mjs';
+import fs from 'node:fs';
+
+const ALWAYS_FACULTY = new Set(['type_mismatch']);
+const CLEAN_MCQ = a => Array.isArray(a) && a.length >= 2 && a.every(x => /^[A-D]$/.test(x)) && new Set(a).size === a.length;
+export function mcqFormatExamples(questions = JSON.parse(fs.readFileSync(new URL('../data/questions.json', import.meta.url)))) {
+  return questions.filter(q => q.questionType === 'mcq' && CLEAN_MCQ(q.mcq?.answer)).length;
+}
+const MCQ_EVIDENCE_NEEDED = 2;
+export const HINGLISH = /\b(hai|nahi|nhi|kyu|kyun|kya|chahiye|galat|toh|raha|hona|karu|kuch|pucha|aana|hoga|mein)\b/i;
 
 export const INJECTION = /ignore (all )?(previous|prior|above) instructions|you are (now )?(the )?(an? )?(admin|system|developer)|system prompt|mark (this|the) report as|as an? (ai|assistant)|<\/?(system|instructions?)>/i;
 
@@ -7,7 +16,7 @@ export const VERDICTS = ['defect', 'no_error', 'display_issue', 'app_issue', 'la
 
 const MIN_CONF = { answer_key: 0.9, stem_data: 0.85, solution_fix: 0.8, option_repair: 0.85, default: 0.8 };
 
-export function guard(a, q, taxonomy, comment) {
+export function guard(a, q, taxonomy, comment, opts = {}) {
   const notes = [], r = { ...a };
   const rep = r.repair && taxonomy.repairs[r.repair];
   const edits = r.edits ?? (r.edit ? [r.edit] : []);
@@ -28,6 +37,9 @@ export function guard(a, q, taxonomy, comment) {
     if (!rep.auto && edits.length) { notes.push(`${r.repair} is auto:false - edit kept as suggestion only`); route = 'faculty_review'; }
     if (!rep.auto) route = 'faculty_review';
   }
+  if (rep && ALWAYS_FACULTY.has(r.repair) && route === 'auto_apply') { notes.push(`${r.repair} changes how every student is marked; never auto-applied`); route = 'faculty_review'; }
+  const touchesMcqKey = edits.some(e => e.field === 'answer' && (q.questionType === 'mcq' || Array.isArray(e.find) || Array.isArray(e.replace)));
+  if (touchesMcqKey && route === 'auto_apply' && mcqFormatExamples(opts.questions) < MCQ_EVIDENCE_NEEDED) { notes.push(`mcq answer array not auto-edited: found ${mcqFormatExamples(opts.questions)} well-formed examples of the production format, need ${MCQ_EVIDENCE_NEEDED}`); route = 'faculty_review'; }
   let cur = q;
   for (const e of r.edits) {
     const res = applyEdit(cur, e);
@@ -42,9 +54,11 @@ export function guard(a, q, taxonomy, comment) {
   }
   if (route === 'auto_apply' && (r.confidence ?? 0) < (MIN_CONF[r.repair] ?? MIN_CONF.default)) { notes.push('confidence below auto-apply floor'); route = 'faculty_review'; }
   if (r.verdict !== 'defect') { r.edit = null; r.edits = []; route = 'no_change'; }
+  if (opts.freeze && route === 'auto_apply') { notes.push('FREEZE: auto-apply disabled for this run; held for faculty'); r.held_by_freeze = true; route = 'faculty_review'; }
   if (route === 'auto_apply' && !(r.edits ?? []).length && !r.edit) { notes.push('auto_apply without an edit'); route = 'faculty_review'; }
   const sentences = (r.student_reply.match(/[.!?](\s|$)/g) || []).length;
   if (sentences > 3 || r.student_reply.length > 420) notes.push('student_reply longer than 3 sentences');
+  if (HINGLISH.test(comment) && !HINGLISH.test(r.student_reply)) notes.push('reply_language_mismatch: comment is Hinglish, reply is not');
   if (INJECTION.test(r.student_reply)) throw new Error('reply echoes injected text');
   r.route = route;
   r.guard_notes = notes;

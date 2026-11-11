@@ -57,7 +57,7 @@
     "route": "auto_apply",
     "confidence": 0.97,
     "evidence": "Independent solve: P=⅓ρv²=⅓·9×10⁻²·400²=4800 N/m² = option D; stored solution computes 4800. Key says A (4556). Student's 8225 is option B and does not match.",
-    "student_reply": "The key was wrong, but 8225 isn't the answer either. P = ⅓ρv² = ⅓ × 9×10⁻² × 400² = 4800 N/m², which is option (D). The key is now fixed to D."
+    "student_reply": "Aap sahi the, key galat thi, lekin 8225 bhi sahi answer nahi hai. P = ⅓ρv² = ⅓ × 9×10⁻² × 400² = 4800 N/m² aata hai, jo option (D) hai, aur key ab D kar di gayi hai."
   },
   {
     "reportId": "R005",
@@ -102,7 +102,7 @@
     "route": "auto_apply",
     "confidence": 0.93,
     "evidence": "Same defect as R008: inductance value absent from stem, present in solution (95.5 mH).",
-    "student_reply": "Right, the inductance was never given. We have added L = 95.5 mH, the value the solution used. The answer (50 Ω) stays as it was."
+    "student_reply": "Sahi pakda, stem mein inductance ki value di hi nahi gayi thi. Humne L = 95.5 mH add kar diya hai, jo solution mein use hui thi, aur answer (50 Ω) wahi rahega."
   },
   {
     "reportId": "R008",
@@ -162,7 +162,7 @@
     "route": "auto_apply",
     "confidence": 0.93,
     "evidence": "Option C is blank. Solution proves |F12|=|F21| (Newton's 3rd law) ⇒ ratio 1:1, and key is C, so C = \"1:1\" is determined by the solution, with no authored content.",
-    "student_reply": "Yes, option C was blank. It's meant to read 1:1, since the two forces are equal and opposite. We've restored it, and (C) is the correct answer."
+    "student_reply": "Haan, option C blank tha. Wahan 1:1 hona chahiye, kyunki dono forces barabar aur opposite hain; humne use restore kar diya hai, aur (C) hi sahi answer hai."
   },
   {
     "reportId": "R012",
@@ -275,7 +275,7 @@
     "route": "auto_apply",
     "confidence": 0.82,
     "evidence": "Same defect as R018; the 5.47 Å line is a leftover from another problem.",
-    "student_reply": "Yes, the 5.47 Å line didn't belong to this question. We replaced it with the right working: λ = 0.3 nm gives K ≈ 16.7 eV, so the answer (B) is unchanged."
+    "student_reply": "Haan, 5.47 Å wali line is question ki nahi thi. Humne use sahi working se badal diya hai: λ = 0.3 nm se K ≈ 16.7 eV aata hai, toh answer (B) wahi rehta hai."
   },
   {
     "reportId": "R020",
@@ -318,10 +318,10 @@
         "replace": "B"
       }
     ],
-    "route": "auto_apply",
+    "route": "faculty_review",
     "confidence": 0.9,
-    "evidence": "Independent solve: τ = t/ln8 = 3/2.079 = 1.44 min ⇒ exactly one correct option (B). Stored as mcq with the malformed key [\"\",\"B\"] (empty first slot), so a clean \"B\" selection fails the grader.",
-    "student_reply": "You were right, and sorry about the negative marks. This was a single-correct question mis-stored as multiple-correct, with a broken key. It's fixed: the answer is (B) 1.44 min."
+    "evidence": "Independent solve: τ = t/ln8 = 3/2.079 = 1.44 min ⇒ exactly one correct option (B). Stored as mcq with the malformed key [\"\",\"B\"] (empty first slot), so a clean \"B\" selection fails the grader. Held for faculty: a type change alters negative marking for every past and future attempt, so it is never auto-applied.",
+    "student_reply": "You were right, and sorry about the negative marks. Only (B) 1.44 min is correct, and this single-answer question was stored as multiple-correct with a broken key. Because changing the type changes how every student is marked, faculty will confirm the fix before it goes live."
   },
   {
     "reportId": "R022",
@@ -447,7 +447,7 @@
     "route": "no_change",
     "confidence": 0.96,
     "evidence": "Relative angle 2π: (π/4 − π/8)t² = 2π ⇒ t²=16 ⇒ t=4 s. At t=2 s the relative angle is only π/2.",
-    "student_reply": "The key (4 s) is right. The dots realign when the faster wheel is exactly one full turn (2π) ahead, which is (π/8)t² = 2π, so t = 4 s. At 2 s the gap is only π/2."
+    "student_reply": "Key (4 s) sahi hai. Dots tab dobara align hote hain jab tez wheel poora ek chakkar (2π) aage ho jaye, yaani (π/8)t² = 2π, toh t = 4 s hota hai. 2 s par gap sirf π/2 hai."
   },
   {
     "reportId": "R032",
@@ -458,7 +458,7 @@
     "route": "no_change",
     "confidence": 0.96,
     "evidence": "Shift = (D/d)[t1(µ1−1)−t2(µ2−1)] = 0.08 m = 8 cm. The question asks for the shift in cm, so 8 is correct.",
-    "student_reply": "Your 0.08 is right, but it is in metres. The question asks for the shift in cm, so 0.08 m = 8 cm and the key is correct."
+    "student_reply": "Aapka 0.08 sahi hai, par woh metre mein hai. Question cm mein shift poochta hai, toh 0.08 m = 8 cm hai aur key sahi hai."
   },
   {
     "reportId": "R033",
@@ -480,7 +480,7 @@
     "route": "no_change",
     "confidence": 0.8,
     "evidence": "Two waves of intensity I0 at φ=π/2: I=I0+I0+2I0cos(π/2)=2I0, i.e. twice one wave, so Assertion is false. Key D (A false, R true) is consistent with that. BUT the stored solution contradicts itself (calls A false, derives \"A true\", then picks d) and uses I=2I0cos²(φ/2), which is wrong. Reason R (\"always the sum\") is also doubtful. Logged for faculty as an unreported defect.",
-    "student_reply": "Thanks for digging into this. Two equal waves at π/2 give I = I₀ + I₀ + 2I₀cos(π/2) = 2I₀, which is twice one wave, so the assertion is false and the key stands. The stored solution is confusing, though, and we have sent it to faculty to clean up.",
+    "student_reply": "Thanks for digging into this. Two equal waves at π/2 give I = I₀ + I₀ + 2I₀cos(π/2) = 2I₀, which is twice one wave, so the assertion is false, which your report does not change. The stored solution contradicts itself, and we have sent it to faculty to review.",
     "flags": [
       "unreported_solution_defect"
     ]
@@ -541,7 +541,7 @@
     "route": "no_change",
     "confidence": 0.95,
     "evidence": "Request is for a Hindi version; the question content is fine (verified: K≈600 eV, key A).",
-    "student_reply": "Noted: you'd like this in Hindi. It's only available in English right now, and we've logged your request. The question itself has no errors."
+    "student_reply": "Aapki baat note kar li hai: aap yeh question Hindi mein chahte hain. Abhi yeh sirf English mein available hai, aur humne aapki request log kar di hai. Question mein koi galti nahi hai."
   },
   {
     "reportId": "R040",

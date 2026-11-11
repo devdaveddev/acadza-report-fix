@@ -7,7 +7,7 @@
   "scripts": {
     "triage": "node engine/run.mjs",
     "triage:live": "node engine/run.mjs --live",
-    "test": "node --test tests/",
+    "test": "node --test tests/guards.test.mjs",
     "serve": "python3 -m http.server 8765 --directory public"
   },
   "engines": { "node": ">=22" }

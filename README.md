@@ -9,8 +9,10 @@ Turns a student's "ans galat hai" into a **safe, reviewable fix**: a triage engi
 
 ```
 npm run triage     # regenerate results.json + public/data.json (offline/curated mode, no API key needed)
-npm test           # 10 guard / verifier tests
+npm test           # 20 guard / verifier / consistency tests
 npm run serve      # console at http://localhost:8765
+node engine/run.mjs --freeze            # no auto-apply: writes results.freeze.json + public/data.freeze.json (console: ?freeze)
+node engine/run.mjs --dry-run R021      # print the exact live prompts + estimated tokens for one report; sends nothing
 ANTHROPIC_API_KEY=... npm run triage:live   # live LLM analyst (see "Honesty notes")
 ```
 
@@ -33,7 +35,10 @@ reports ─► group by question ─► ① deterministic lint   (option count, 
 4. **auto:false repairs never auto-apply** (identical options, diagram, wrong chapter, syllabus, ...).
 5. **Confidence floors** per repair; non-defects can't carry an edit.
 6. **Injection**: instruction-like comments are flagged; a reply that echoes them throws.
-7. **Replies** capped at 3 sentences.
+7. **Replies** capped at 3 sentences. If the comment is Hinglish, the reply must be too (live prompt rule 10; offline replies in `HINGLISH_REPLIES`).
+8. **Type changes never auto-apply** (`type_mismatch` alters negative marking for every attempt).
+9. **mcq answer arrays are never auto-edited** until the data holds at least 2 well-formed examples of the production format (it holds 0 today: both mcq keys are malformed).
+10. **Freeze** (`--freeze`): any `auto_apply` becomes `faculty_review` and is marked `held_by_freeze`. Non-defects stay `no_change`, since nothing is written for them.
 
 **Duplicate reports** are grouped per question: one proposed edit, one decision, each reporter gets their own reply.
 

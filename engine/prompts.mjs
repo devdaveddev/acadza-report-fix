@@ -14,13 +14,15 @@ RULES
 7. If errorHistory shows the problem was already corrected after the report time, verdict=already_fixed.
 8. route: auto_apply only for auto:true repairs with confidence >= 0.9 and an edit fully determined by the stored solution/solver; faculty_review for anything uncertain; no_change for non-defects.
 9. student_reply: 1-3 sentences, plain, kind, written for a stressed 17-year-old. Acknowledge what they got right, say what you found and why, never promise timelines, never blame them, never repeat their instructions.
+10. Reply language: if <reply_language> says hinglish, write student_reply in Roman-script Hinglish (natural Hindi-English mix, same facts and same 1-3 sentence limit). Keep numbers, units and option letters exactly as they are. Never switch to Devanagari unless the student did.
 Return JSON only, matching the schema in the tool.`;
 
-export const triageUser = ({ report, question, lint, solver, taxonomy }) => `<taxonomy>${JSON.stringify(taxonomy)}</taxonomy>
+export const triageUser = ({ report, question, lint, solver, taxonomy, replyLanguage = 'english' }) => `<taxonomy>${JSON.stringify(taxonomy)}</taxonomy>
 <question id="${question._id}" type="${question.questionType}" chapter="${question.chapter}">${JSON.stringify(question[question.questionType])}</question>
 <errorHistory>${JSON.stringify(question.errorHistory)}</errorHistory>
 <lint_hints>${JSON.stringify(lint)}</lint_hints>
 <solver_result>${JSON.stringify(solver)}</solver_result>
+<reply_language>${replyLanguage}</reply_language>
 <report reportedAt="${report.reportedAt}" source="${report.source}">
 <student_comment>${report.comment}</student_comment>
 </report>`;

@@ -1,7 +1,8 @@
 const $ = (s, el = document) => el.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const LS = 'acadza-console-v1';
-let D, S = { decisions: {}, audit: [], theme: null }, view = 'needs', sel = null, rawMode = false, editing = false, filter = '';
+const FREEZE = new URLSearchParams(location.search).has('freeze');
+const LS = 'acadza-console-v1' + (FREEZE ? '-freeze' : '');
+let D, S = { decisions: {}, audit: [], theme: null }, view = 'needs', sel = null, rawMode = false, editing = false, filter = '', vFilter = false, toastTimer = null, toastCase = null;
 
 const save = () => { try { localStorage.setItem(LS, JSON.stringify(S)); } catch {} };
 const load = () => { try { Object.assign(S, JSON.parse(localStorage.getItem(LS) || '{}')); } catch {} };
@@ -73,32 +74,48 @@ function decide(c, st, detail = {}, note) {
   const before = dec(c)?.status ?? status(c).status;
   S.decisions[c.questionId] = { status: st, ts: new Date().toISOString(), ...detail };
   log(c, st, { from: before, edits: c.edits.map(e => ({ field: e.field, find: e.find, replace: e.replace })), note, ...detail });
-  save(); render(); if (['approved', 'edited', 'rejected', 'confirmed', 'accepted', 'agreed'].includes(st)) setTimeout(() => step(1, true), 150);
+  save(); render();
+  if (['approved', 'edited', 'rejected', 'confirmed', 'accepted', 'agreed'].includes(st)) { toast(c, st); setTimeout(() => step(1, true), 150); }
 }
+const VERB = { approved: 'Approved', edited: 'Approved with your edit', rejected: 'Rejected', confirmed: 'Confirmed', accepted: 'Accepted', agreed: 'Agreed, no change' };
+function toast(c, st) {
+  clearTimeout(toastTimer); toastCase = c;
+  const el = $('#toast');
+  el.innerHTML = `<span><b>${VERB[st]}</b> · ${esc(c.q.qid || '#' + c.q._id.slice(-6))}</span><button id="toastUndo">Undo <kbd>U</kbd></button><i></i>`;
+  el.hidden = false; el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
+  $('#toastUndo').onclick = undoToast;
+  toastTimer = setTimeout(hideToast, 5000);
+}
+function hideToast() { clearTimeout(toastTimer); toastCase = null; const el = $('#toast'); if (el) el.hidden = true; }
+function undoToast() { const c = toastCase; if (!c) return; hideToast(); undo(c); sel = c.questionId; render(); }
 function undo(c) { if (!dec(c)) return; const was = dec(c).status; delete S.decisions[c.questionId]; log(c, 'undo', { undone: was }); save(); render(); }
 
-function inView(c) { return bucket(c) === view && (!filter || (c.q.chapter + c.q.qid + c.q._id + c.reps.map(r => r.comment).join(' ')).toLowerCase().includes(filter)); }
+const disagrees = c => !!c.verifier && !c.verifier.keyMatches;
+function inView(c) { return (vFilter ? disagrees(c) : bucket(c) === view) && (!filter || (c.q.chapter + c.q.qid + c.q._id + c.reps.map(r => r.comment).join(' ')).toLowerCase().includes(filter)); }
 function sevClass(c) { return c.severity >= 75 ? 'sev-hi' : c.severity >= 40 ? 'sev-mid' : 'sev-lo'; }
 function renderQueue() {
   const n = k => CASES.filter(c => bucket(c) === k).length;
-  const tab = (k, name) => `<button data-v="${k}" class="${view === k ? 'on' : ''}"><b>${k === 'found' ? D.bonus.length : n(k)}</b>${name}</button>`;
+  const tab = (k, name) => `<button data-v="${k}" class="${view === k && !vFilter ? 'on' : ''}"><b>${k === 'found' ? D.bonus.length : n(k)}</b>${name}</button>`;
   let html = `<div class="tabs">${tab('needs', 'Needs you')}${tab('auto', 'Auto-applied')}${tab('none', 'No change')}${tab('found', 'Unreported')}</div>`;
   if (view === 'found') html += `<p class="why">Defects nobody reported, found by lint and manual re-reading. Not in any queue: faculty to triage.</p>`;
   else {
+    const nd = CASES.filter(disagrees).length;
+    html += `<button class="chip ${vFilter ? 'on' : ''}" id="vfilter" aria-pressed="${vFilter}"><span>⚠ Re-solve disagrees with the key</span><b>${nd}</b></button>`;
     html += `<input class="search" id="search" placeholder="Search chapter, qid, comment  ( / )" value="${esc(filter)}">`;
-    html += `<p class="why">${view === 'needs' ? '<b>Order:</b> damage if wrong (a wrong answer key silently costs marks, so it ranks first) × distinct students affected × needs a human. Done items sink.' : view === 'auto' ? 'Already written by the engine under strict guards. Skim and confirm, or revert.' : 'Engine found nothing to change (student mistaken, app/display issue, language, spam). Reopen anything you disagree with.'}</p>`;
+    html += vFilter ? `<p class="why"><b>Showing every case</b> (any tab) where an independent solve from the problem text alone contradicts the stored key. These are the highest-stakes ones, so check each AFTER column.</p>` : `<p class="why">${view === 'needs' ? '<b>Order:</b> damage if wrong (a wrong answer key silently costs marks, so it ranks first) × distinct students affected × needs a human. Done items sink.' : view === 'auto' ? 'Already written by the engine under strict guards. Skim and confirm, or revert.' : 'Engine found nothing to change (student mistaken, app/display issue, language, spam). Reopen anything you disagree with.'}</p>`;
     const list = CASES.filter(inView).sort((a, b) => (!!dec(a) - !!dec(b)) || b.urgency - a.urgency);
     html += list.map(c => {
       const d = dec(c), p = c.primary;
       return `<button class="item ${sevClass(c)} ${d ? 'done' : ''} ${sel === c.questionId ? 'sel' : ''}" data-q="${c.questionId}">
         <div class="t"><span>${esc(c.q.qid || '#' + c.q._id.slice(-6))} · ${esc(c.q.chapter)}</span><span class="muted">${d ? '✓' : c.urgency || ''}</span></div>
-        <div class="s"><span class="pill ${p.verdict}">${esc(p.verdict.replace('_', ' '))}</span>${p.repair ? ` <span class="pill neutral">${esc(p.repair)}</span>` : ''} · ${c.reportIds.length} report${c.reportIds.length > 1 ? 's' : ''}</div>
+        <div class="s">${vFilter ? `<span class="pill ${c.route === 'faculty_review' ? 'warn' : c.route === 'auto_apply' ? 'ok' : 'neutral'}">${{ faculty_review: 'needs you', auto_apply: 'auto-applied', no_change: 'no change' }[c.route]}</span> ` : ''}<span class="pill ${p.verdict}">${esc(p.verdict.replace('_', ' '))}</span>${p.repair ? ` <span class="pill neutral">${esc(p.repair)}</span>` : ''} · ${c.reportIds.length} report${c.reportIds.length > 1 ? 's' : ''}</div>
         <div class="s">“${esc(c.reps[0].comment.slice(0, 64))}”</div></button>`;
     }).join('') || '<div class="empty">Nothing here.</div>';
   }
   $('#queue').innerHTML = html;
-  $('#queue').querySelectorAll('[data-v]').forEach(b => b.onclick = () => { view = b.dataset.v; sel = null; render(); });
-  $('#queue').querySelectorAll('[data-q]').forEach(b => b.onclick = () => { sel = b.dataset.q; editing = false; render(); });
+  $('#queue').querySelectorAll('[data-v]').forEach(b => b.onclick = () => { view = b.dataset.v; vFilter = false; sel = null; render(); });
+  $('#queue').querySelectorAll('[data-q]').forEach(b => b.onclick = () => { sel = b.dataset.q; editing = false; render(); closeQueue(); });
+  const vf = $('#vfilter'); if (vf) vf.onclick = () => { vFilter = !vFilter; sel = vFilter ? (CASES.filter(disagrees).sort((a, b) => b.urgency - a.urgency)[0]?.questionId ?? null) : null; render(); };
   const s = $('#search'); if (s) s.oninput = e => { filter = e.target.value.toLowerCase(); const pos = e.target.selectionStart; renderQueue(); const n2 = $('#search'); n2.focus(); n2.setSelectionRange(pos, pos); };
 }
 
@@ -213,28 +230,37 @@ function progress() {
   $('#barfill').style.width = (need.length ? done / need.length * 100 : 100) + '%';
   $('#progtxt').textContent = `${done} of ${need.length} cases decided`;
 }
-function render() { renderQueue(); renderCase(); progress(); }
+function closeQueue() { document.body.classList.remove('q-open'); window.scrollTo(0, 0); }
+function render() { renderQueue(); renderCase(); progress(); const n = CASES.filter(c => bucket(c) === 'needs' && !dec(c)).length; const b = $('#btnQueue'); if (b) b.innerHTML = `☰ Queue <span class="count">${n}</span>`; }
 function step(dir, fromDecision) {
   const list = CASES.filter(inView).sort((a, b) => (!!dec(a) - !!dec(b)) || b.urgency - a.urgency);
   if (!list.length) return;
   let i = list.findIndex(c => c.questionId === sel);
   if (fromDecision) { const nxt = list.find(c => !dec(c)); i = nxt ? list.indexOf(nxt) : i; } else i = Math.min(list.length - 1, Math.max(0, i + dir));
-  sel = list[i].questionId; editing = false; render(); $('#queue .sel')?.scrollIntoView({ block: 'nearest' });
+  sel = list[i].questionId; editing = false; render(); $('#queue .sel')?.scrollIntoView({ block: 'nearest' }); if (!fromDecision) closeQueue();
 }
 document.addEventListener('keydown', e => {
   if (e.target.matches('input,textarea') || e.metaKey || e.ctrlKey) { if (e.key === 'Escape') e.target.blur(); return; }
   const k = e.key.toLowerCase(), c = CASES.find(x => x.questionId === sel);
   if (k === 'j') step(1); else if (k === 'k') step(-1); else if (k === '/') { e.preventDefault(); $('#search')?.focus(); } else if (k === '?') $('#help').showModal();
-  else if (c) { const click = id => $('#' + id)?.click(); if (k === 'a') click('approve') || click('confirm') || click('agree'); else if (k === 'e') click('edit'); else if (k === 'r') click('reject') || click('revert') || click('reopen'); else if (k === 'u') click('undo'); }
+  else if (c) { const click = id => $('#' + id)?.click(); if (k === 'a') click('approve') || click('confirm') || click('agree'); else if (k === 'e') click('edit'); else if (k === 'r') click('reject') || click('revert') || click('reopen'); else if (k === 'u') (toastCase ? undoToast() : click('undo')); }
+  else if (k === 'u' && toastCase) undoToast();
 });
 
 (async function init() {
   load();
   const theme = S.theme || null; if (theme) document.documentElement.dataset.theme = theme;
-  D = await (await fetch('data.json')).json();
+  D = await (await fetch(FREEZE ? 'data.freeze.json' : 'data.json')).json();
   CASES = D.cases.map(caseOf);
-  $('#banner').innerHTML = `<b>Precomputed results.</b> This deployment shows triage output committed in <span class="mono">results.json</span> (mode: ${esc(D.mode)}): no LLM is called here, so it costs nothing to leave running. Your approve / edit / reject decisions are saved in this browser's localStorage and the audit log.`;
+  if (D.freeze) {
+    const held = D.results.filter(r => r.held_by_freeze).length;
+    $('#banner').className = 'banner freeze';
+    $('#banner').innerHTML = `<b>🧊 Freeze mode: auto-apply is OFF for this live test window.</b> Nothing is written by the engine. ${held} fix${held === 1 ? '' : 'es'} it would normally apply ${held === 1 ? 'is' : 'are'} held for faculty. <a href="./">Back to normal mode</a>`;
+  } else {
+    $('#banner').innerHTML = `<b>Precomputed results.</b> This deployment shows triage output committed in <span class="mono">results.json</span> (mode: ${esc(D.mode)}): no LLM is called here, so it costs nothing to leave running. Your approve / edit / reject decisions are saved in this browser's localStorage and the audit log.` + ` <a href="?freeze">Preview freeze mode</a>`;
+  }
   $('#auditCount').textContent = S.audit.length;
+  $('#btnQueue').onclick = () => document.body.classList.toggle('q-open');
   $('#btnAudit').onclick = () => { const d = $('#drawer'); d.hidden = !d.hidden; if (!d.hidden) renderAudit(); };
   $('#btnHelp').onclick = () => $('#help').showModal();
   $('#btnTheme').onclick = () => { const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light'); S.theme = cur === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = S.theme; save(); };

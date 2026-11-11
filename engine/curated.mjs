@@ -28,7 +28,7 @@ export const CURATED = {
     student_reply: 'Right, the inductance was never given. We have added L = 95.5 mH, the value the solution used. The answer (50 Ω) stays as it was.' },
   R034: { verdict: 'no_error', route: 'no_change', confidence: 0.8, flags: ['unreported_solution_defect'],
     evidence: 'Two waves of intensity I0 at φ=π/2: I=I0+I0+2I0cos(π/2)=2I0, i.e. twice one wave, so Assertion is false. Key D (A false, R true) is consistent with that. BUT the stored solution contradicts itself (calls A false, derives "A true", then picks d) and uses I=2I0cos²(φ/2), which is wrong. Reason R ("always the sum") is also doubtful. Logged for faculty as an unreported defect.',
-    student_reply: 'Thanks for digging into this. Two equal waves at π/2 give I = I₀ + I₀ + 2I₀cos(π/2) = 2I₀, which is twice one wave, so the assertion is false and the key stands. The stored solution is confusing, though, and we have sent it to faculty to clean up.' },
+    student_reply: 'Thanks for digging into this. Two equal waves at π/2 give I = I₀ + I₀ + 2I₀cos(π/2) = 2I₀, which is twice one wave, so the assertion is false, which your report does not change. The stored solution contradicts itself, and we have sent it to faculty to review.' },
   R010: { verdict: 'defect', repair: 'option_repair', edits: [{ field: 'question', find: '</math></h3>', replace: '</math><br/>(D) 14 m/s</h3>' }], route: 'faculty_review', confidence: 0.4, group: '622f08d7b70e4b50e4500a1b',
     evidence: 'Stem lists only (A)(B)(C); no option D exists to restore. Key C (10 m/s) is correct (vCM=10·14/14). The missing distractor cannot be recovered from the solution, so the edit is a placeholder for faculty to author; never auto-written.',
     student_reply: "You're right, only three options were showing. The correct answer, (C) 10 m/s, is unaffected. Faculty are adding the fourth option." },
@@ -96,9 +96,9 @@ export const CURATED = {
   R036: { verdict: 'display_issue', route: 'no_change', confidence: 0.7,
     evidence: 'Stored question is intact (4 options, key C verified: 1.1×0.9=0.99). The four options sit inside a single heading with deeply nested spans, which likely overflows on narrow screens. That is a rendering fix, not a content fix.',
     student_reply: "Sorry about the clipped options. The question content is correct, so this is a small-screen layout problem that we've passed to the app team. For now they are (A) 100 N, (B) 121 N, (C) 99 N, (D) None of these." },
-  R021: { verdict: 'defect', repair: 'type_mismatch', edits: [{ field: 'questionType', find: 'mcq', replace: 'scq' }, ans(['', 'B'], 'B')], route: 'auto_apply', confidence: 0.9,
-    evidence: 'Independent solve: τ = t/ln8 = 3/2.079 = 1.44 min ⇒ exactly one correct option (B). Stored as mcq with the malformed key ["","B"] (empty first slot), so a clean "B" selection fails the grader.',
-    student_reply: "You were right, and sorry about the negative marks. This was a single-correct question mis-stored as multiple-correct, with a broken key. It's fixed: the answer is (B) 1.44 min." },
+  R021: { verdict: 'defect', repair: 'type_mismatch', edits: [{ field: 'questionType', find: 'mcq', replace: 'scq' }, ans(['', 'B'], 'B')], route: 'faculty_review', confidence: 0.9,
+    evidence: 'Independent solve: τ = t/ln8 = 3/2.079 = 1.44 min ⇒ exactly one correct option (B). Stored as mcq with the malformed key ["","B"] (empty first slot), so a clean "B" selection fails the grader. Held for faculty: a type change alters negative marking for every past and future attempt, so it is never auto-applied.',
+    student_reply: "You were right, and sorry about the negative marks. Only (B) 1.44 min is correct, and this single-answer question was stored as multiple-correct with a broken key. Because changing the type changes how every student is marked, faculty will confirm the fix before it goes live." },
   R011: { verdict: 'defect', repair: 'option_repair', edits: [{ field: 'question', find: '(C) ', replace: `(C) <math ${MML}><mrow><mn> 1 </mn><mi>:</mi><mn> 1 </mn></mrow></math>` }], route: 'auto_apply', confidence: 0.93,
     evidence: 'Option C is blank. Solution proves |F12|=|F21| (Newton\'s 3rd law) ⇒ ratio 1:1, and key is C, so C = "1:1" is determined by the solution, with no authored content.',
     student_reply: "Yes, option C was blank. It's meant to read 1:1, since the two forces are equal and opposite. We've restored it, and (C) is the correct answer." },
@@ -137,3 +137,13 @@ export const CURATED = {
     student_reply: 'Fair point. We have added "(in N)" to the question so the unit is clear. The answer (20) is unchanged.' },
 };
 delete CURATED.R003b;
+
+export const HINGLISH_REPLIES = {
+  R004: 'Aap sahi the, key galat thi, lekin 8225 bhi sahi answer nahi hai. P = ⅓ρv² = ⅓ × 9×10⁻² × 400² = 4800 N/m² aata hai, jo option (D) hai, aur key ab D kar di gayi hai.',
+  R032: 'Aapka 0.08 sahi hai, par woh metre mein hai. Question cm mein shift poochta hai, toh 0.08 m = 8 cm hai aur key sahi hai.',
+  R007: 'Sahi pakda, stem mein inductance ki value di hi nahi gayi thi. Humne L = 95.5 mH add kar diya hai, jo solution mein use hui thi, aur answer (50 Ω) wahi rahega.',
+  R011: 'Haan, option C blank tha. Wahan 1:1 hona chahiye, kyunki dono forces barabar aur opposite hain; humne use restore kar diya hai, aur (C) hi sahi answer hai.',
+  R019: 'Haan, 5.47 Å wali line is question ki nahi thi. Humne use sahi working se badal diya hai: λ = 0.3 nm se K ≈ 16.7 eV aata hai, toh answer (B) wahi rehta hai.',
+  R031: 'Key (4 s) sahi hai. Dots tab dobara align hote hain jab tez wheel poora ek chakkar (2π) aage ho jaye, yaani (π/8)t² = 2π, toh t = 4 s hota hai. 2 s par gap sirf π/2 hai.',
+  R039: 'Aapki baat note kar li hai: aap yeh question Hindi mein chahte hain. Abhi yeh sirf English mein available hai, aur humne aapki request log kar di hai. Question mein koi galti nahi hai.',
+};
