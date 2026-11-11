@@ -3,7 +3,7 @@
 Turns a student's "ans galat hai" into a **safe, reviewable fix**: a triage engine (Part 1), a faculty console (Part 2) and `results.json` (Part 3).
 
 - `results.json`: output for all 44 reports (`npm run triage`)
-- `public/`: the faculty console, a static site (no build step)
+- `public/`: the faculty console, a static site (no build step). Open it with `?demo` (or the ▶ Demo button) for a guided tour
 - `PRODUCT.md`: the product-thinking write-up
 
 ```

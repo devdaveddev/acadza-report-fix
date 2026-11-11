@@ -118,3 +118,16 @@ dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px}dt{font-family:ui-mo
   #btnTheme{font-size:0}#btnTheme::before{content:"◐";font-size:16px}
   #btnAudit{font-size:0}#btnAudit::before{content:"Log";font-size:14px}#btnAudit .count{font-size:12px}
 }
+
+.demo-btn{border-color:var(--brand);color:var(--brand);font-weight:600}
+.demo{position:fixed;left:380px;right:24px;bottom:96px;max-width:560px;z-index:45;background:var(--panel);border:2px solid var(--brand);border-radius:14px;padding:14px 16px;box-shadow:0 10px 36px rgba(0,0,0,.3)}
+.demo[hidden]{display:none}.demo p{margin:6px 0 12px;line-height:1.5}
+.demo-top{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.demo-nav{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}.demo-nav a.btn{text-decoration:none;color:inherit}
+.demo-nav .btn:disabled{opacity:.4;cursor:default}
+.demo-hl{outline:3px solid var(--brand);outline-offset:3px;border-radius:10px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{outline-color:transparent}}
+@media (max-width:700px){
+  .demo{left:10px;right:10px;bottom:calc(76px + env(safe-area-inset-bottom));max-width:none;max-height:46vh;overflow:auto}
+  #btnDemo{font-size:0}#btnDemo::before{content:"▶";font-size:14px}
+}

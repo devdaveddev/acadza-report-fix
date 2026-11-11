@@ -14,6 +14,7 @@
   <div class="progress" aria-live="polite"><div class="bar"><i id="barfill"></i></div><span id="progtxt" class="muted"></span></div>
   <div class="top-actions">
     <button class="ghost only-sm" id="btnQueue">☰ Queue</button>
+    <button class="ghost demo-btn" id="btnDemo" title="Guided tour of the console">▶ Demo</button>
     <button class="ghost" id="btnAudit">Audit log <span class="count" id="auditCount">0</span></button>
     <button class="ghost" id="btnHelp" title="Keyboard shortcuts">?</button>
     <button class="ghost" id="btnTheme" title="Toggle theme">Theme</button>
@@ -24,6 +25,7 @@
   <nav class="queue" id="queue" aria-label="Review queue"></nav>
   <section class="case" id="case" tabindex="-1"></section>
 </main>
+<div class="demo" id="demo" role="dialog" aria-label="Guided demo" hidden></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <aside class="drawer" id="drawer" hidden aria-label="Audit log"></aside>
 <dialog id="help"><h3>Keyboard</h3><dl>
