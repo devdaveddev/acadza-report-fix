@@ -1,0 +1,14 @@
+{
+  "name": "acadza-report-fix",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Report -> Fix loop: triage engine + faculty review console",
+  "scripts": {
+    "triage": "node engine/run.mjs",
+    "triage:live": "node engine/run.mjs --live",
+    "test": "node --test tests/",
+    "serve": "python3 -m http.server 8765 --directory public"
+  },
+  "engines": { "node": ">=22" }
+}
