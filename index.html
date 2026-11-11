@@ -13,6 +13,7 @@
   <div class="brand"><span class="logo">✓</span><b>Review console</b><span class="muted hide-sm">· report → fix</span></div>
   <div class="progress" aria-live="polite"><div class="bar"><i id="barfill"></i></div><span id="progtxt" class="muted"></span></div>
   <div class="top-actions">
+    <button class="ghost only-sm" id="btnQueue">☰ Queue</button>
     <button class="ghost" id="btnAudit">Audit log <span class="count" id="auditCount">0</span></button>
     <button class="ghost" id="btnHelp" title="Keyboard shortcuts">?</button>
     <button class="ghost" id="btnTheme" title="Toggle theme">Theme</button>
@@ -23,11 +24,12 @@
   <nav class="queue" id="queue" aria-label="Review queue"></nav>
   <section class="case" id="case" tabindex="-1"></section>
 </main>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <aside class="drawer" id="drawer" hidden aria-label="Audit log"></aside>
 <dialog id="help"><h3>Keyboard</h3><dl>
   <dt>J / K</dt><dd>next / previous case</dd><dt>A</dt><dd>approve proposed fix</dd>
   <dt>E</dt><dd>edit the replacement, then approve</dd><dt>R</dt><dd>reject</dd>
-  <dt>U</dt><dd>undo last decision on this case</dd><dt>/</dt><dd>search</dd></dl>
+  <dt>U</dt><dd>undo the last decision (works for 5 s after you decide, even after the next case loads)</dd><dt>/</dt><dd>search</dd></dl>
   <form method="dialog"><button class="primary">Got it</button></form></dialog>
 <script src="app.js" type="module"></script>
 </body>
